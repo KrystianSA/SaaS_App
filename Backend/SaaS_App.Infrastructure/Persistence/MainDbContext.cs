@@ -1,0 +1,29 @@
+﻿using Microsoft.EntityFrameworkCore;
+using SaaS_App.Application.Interfaces;
+using SaaS_App.Domain.Entities;
+
+namespace SaaS_App.Infrastructure.Persistence
+{
+    public class MainDbContext : DbContext, IApplicationDbContext
+    {
+        public MainDbContext(DbContextOptions<MainDbContext> options) : base(options)
+        {
+
+        }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Account> Accounts { get; set; }
+        public DbSet<AccountUser> AccountUser { get; set; }
+
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            configurationBuilder.Properties<decimal>().HavePrecision(18, 4);
+
+            base.ConfigureConventions(configurationBuilder);
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(MainDbContext).Assembly);
+        }
+    }
+}

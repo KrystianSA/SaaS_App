@@ -33,6 +33,22 @@ namespace SaaS_App.WebApi.Controllers
             return Ok(token.RequestToken);
         }
 
+        //[HttpPost]
+        //public async Task<ActionResult> LinkToResetPassword(LinkToResetPasswordCommand.Request user)
+        //{
+        //    var linkToResetPasswordResult = await _mediator.Send(user);
+        //    return Ok(linkToResetPasswordResult);
+        //}
+
+        [HttpPost]
+        [IgnoreAntiforgeryToken]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePassword.Request user)
+        {
+            var changePasswordResult = await _mediator.Send(user); 
+            return Ok(changePasswordResult);
+        }
+
+
         [HttpPost]
         [IgnoreAntiforgeryToken]
         public async Task<ActionResult> CreateUserWithAccount([FromBody] CreateUserWithAccountCommand.Request user)

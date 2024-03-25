@@ -2,8 +2,11 @@
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using MimeKit;
+using SaaS_App.Application.Interfaces;
 using SaaS_App.Application.Logic.User;
 using SaaS_App.Infrastructure.Auth;
+using SaaS_App.Infrastructure.Email;
 using SaaS_App.WebApi.Application.Auth;
 using SaaS_App.WebApi.Application.Response;
 
@@ -16,29 +19,34 @@ namespace SaaS_App.WebApi.Controllers
         private readonly CookieSettings? _cookieSettings;
         private readonly JwtManager _jwtManager;
         private readonly IAntiforgery _antiforgery;
+        private readonly IEmailSender _emailSender;
 
         public UserController(ILogger<UserController> logger, IMediator mediator,
             IOptions<CookieSettings> cookieSettings,
             JwtManager jwtManager,
-            IAntiforgery antiforgery) : base(logger, mediator)
+            IAntiforgery antiforgery,
+            IEmailSender emailSender) : base(logger, mediator)
         {
             _cookieSettings = cookieSettings != null ? cookieSettings.Value : null;
             _jwtManager = jwtManager;
             _antiforgery = antiforgery;
+            _emailSender = emailSender;
         }
+
+        [HttpPost]
+        public void SendMail()
+        {
+            MailboxAddress mailboxAddress = new MailboxAddress("Test", "krystian.sasiadek@protonmail.com");
+            var message = new Message(new List<MailboxAddress> { mailboxAddress }, "Test", "<h1>Test</h1>");
+            _emailSender.SendEmail(message);
+        }
+
         [HttpGet]
         public async Task<ActionResult> AntiforgeryToken()
         {
             var token = _antiforgery.GetAndStoreTokens(HttpContext);
             return Ok(token.RequestToken);
         }
-
-        //[HttpPost]
-        //public async Task<ActionResult> LinkToResetPassword(LinkToResetPasswordCommand.Request user)
-        //{
-        //    var linkToResetPasswordResult = await _mediator.Send(user);
-        //    return Ok(linkToResetPasswordResult);
-        //}
 
         [HttpPost]
         [IgnoreAntiforgeryToken]

@@ -7,7 +7,7 @@ using SaaS_App.Application.Logic.Abstractions;
 
 namespace SaaS_App.Application.Logic.User
 {
-    public static class ChangePassword
+    public static class ChangePasswordCommand
     {
         public class Request : IRequest<Result>
         {

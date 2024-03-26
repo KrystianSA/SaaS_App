@@ -1,6 +1,6 @@
 ﻿namespace SaaS_App.Infrastructure.Email
 {
-    public class EmailSenderOptions
+    public class EmailSetting
     {
         public string From { get; set; }
         public string SmtpServer { get; set; }

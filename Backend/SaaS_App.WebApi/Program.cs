@@ -7,8 +7,7 @@ using SaaS_App.WebApi.Application;
 using SaaS_App.WebApi.Application.Auth;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json.Serialization;
-using SaaS_App.Infrastructure.Email;
-using Microsoft.Extensions.Configuration;
+using SaaS_App.Infrastructure.EmailService;
 
 namespace SaaS_App.WebApi
 {
@@ -40,12 +39,7 @@ namespace SaaS_App.WebApi
                 .Enrich.FromLogContext());
 
             // Add services to the container.
-            //builder.Services.AddEmailSender(builder.Configuration);
-            var emailConfig = builder.Configuration
-                    .GetSection("MailSettings")
-                    .Get<EmailSenderOptions>();
-            builder.Services.AddSingleton(emailConfig);
-            builder.Services.AddScoped<IEmailSender, EmailSender>();
+            builder.Services.AddEmailSender(builder.Configuration);
             builder.Services.AddJwtAutheticationDataProvider(builder.Configuration);
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddDatabaseCache();

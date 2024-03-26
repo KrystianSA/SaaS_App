@@ -2,8 +2,6 @@
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using MimeKit;
-using SaaS_App.Application.Interfaces;
 using SaaS_App.Application.Logic.User;
 using SaaS_App.Infrastructure.Auth;
 using SaaS_App.Infrastructure.Email;
@@ -36,8 +34,12 @@ namespace SaaS_App.WebApi.Controllers
         [HttpPost]
         public void SendMail()
         {
-            MailboxAddress mailboxAddress = new MailboxAddress("Test", "krystian.sasiadek@protonmail.com");
-            var message = new Message(new List<MailboxAddress> { mailboxAddress }, "Test", "<h1>Test</h1>");
+            var message = new Message()
+            {
+                Email = "krystian.sasiadek@protonmail.com",
+                Subject =  "Test",
+                Content =  "<h1>Test</h1>"
+            };
             _emailSender.SendEmail(message);
         }
 
@@ -50,7 +52,7 @@ namespace SaaS_App.WebApi.Controllers
 
         [HttpPost]
         [IgnoreAntiforgeryToken]
-        public async Task<IActionResult> ChangePassword([FromBody] ChangePassword.Request user)
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordCommand.Request user)
         {
             var changePasswordResult = await _mediator.Send(user); 
             return Ok(changePasswordResult);

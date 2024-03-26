@@ -1,49 +1,54 @@
 ﻿using MailKit.Net.Smtp;
+using Microsoft.Extensions.Options;
 using MimeKit;
+using SaaS_App.Infrastructure.Email;
 
-namespace SaaS_App.Infrastructure.Email
+namespace SaaS_App.Infrastructure.EmailService
 {
     public class EmailSender : IEmailSender
     {
-        private readonly EmailSenderOptions _emailSenderOptions;
+        private readonly EmailSetting _options;
 
-        public EmailSender(EmailSenderOptions emailSenderOptions)
+        public EmailSender(IOptions<EmailSetting> options)
         {
-            _emailSenderOptions = emailSenderOptions;
+            _options = options.Value;
         }
-        public  void SendEmail(Message message)
+        public bool SendEmail(Message message)
         {
             var emailMessage = CreateEmailMessage(message);
-            Send(emailMessage);
+            var isSent = Send(emailMessage);
+            return isSent;
+           
         }
 
         private MimeMessage CreateEmailMessage(Message message)
         {
             var emailMessage = new MimeMessage();
-            emailMessage.From.Add(new MailboxAddress("email",_emailSenderOptions.From));
-            emailMessage.To.AddRange(message.To);
+            emailMessage.From.Add(new MailboxAddress("email", _options.From));
+            emailMessage.To.Add(new MailboxAddress("email",message.Email));
             emailMessage.Subject = message.Subject;
             emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Text) { Text = message.Content };
 
             return emailMessage;
         }
 
-        private void Send(MimeMessage mailMessage)
+        private bool Send(MimeMessage mailMessage)
         {
             using (var client = new SmtpClient())
             {
                 try
                 {
-                    client.Connect(_emailSenderOptions.SmtpServer, _emailSenderOptions.Port, true);
+                    client.Connect(_options.SmtpServer, _options.Port, true);
                     client.AuthenticationMechanisms.Remove("XOAUTH2");
-                    client.Authenticate(_emailSenderOptions.UserName, _emailSenderOptions.Password);
-
+                    client.Authenticate(_options.UserName, _options.Password);
                     client.Send(mailMessage);
+                    return true;
                 }
                 catch
                 {
                     //log an error message or throw an exception or both.
-                    throw;
+                    //throw;
+                    return false;
                 }
                 finally
                 {

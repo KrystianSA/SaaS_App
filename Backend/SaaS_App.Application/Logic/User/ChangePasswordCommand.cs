@@ -11,7 +11,7 @@ namespace SaaS_App.Application.Logic.User
     {
         public class Request : IRequest<Result>
         {
-            public required string Email { get; set; }
+            public required string Token { get; set; }
             public required string NewPassword { get; set; }
         }
         public class Result
@@ -30,19 +30,15 @@ namespace SaaS_App.Application.Logic.User
 
             public async Task<Result> Handle(Request request, CancellationToken cancellationToken)
             {
-                var user = await _dbContext.Users.SingleOrDefaultAsync(email => email.Email == request.Email);
+                var token = await _dbContext.Tokens.FirstOrDefaultAsync(token=> token.Token == request.Token);
 
-                if (user == null)
+                if (token == null) 
                 {
-                    throw new ErrorException("InvalidAdressEmail");
+                    throw new Exception("SomethingWentWrong");
                 }
-
-                var isOldPassword = _passwordManager.VerifyPassword(user.HashedPassword, request.NewPassword);
-                
-                if (isOldPassword)
-                {
-                    throw new ErrorException("SomethingWentWrong");
-                }
+           
+                var isTokenValid = DateTime.UtcNow > token.Token_Expiry;
+                if (isTokenValid) { throw new ErrorException("TokenIsExpired"); }
 
                 var newHashedPassword = _passwordManager.HashPassword(request.NewPassword);
                 var updatedPassword = await _dbContext.Users.ExecuteUpdateAsync(property => property
@@ -57,11 +53,6 @@ namespace SaaS_App.Application.Logic.User
         {
             public Validator()
             {
-                RuleFor(email => email.Email)
-                    .NotEmpty()
-                    .EmailAddress();
-
-
                 RuleFor(password => password.NewPassword)
                    .NotEmpty()
                    .MaximumLength(50);

@@ -13,6 +13,7 @@ namespace SaaS_App.Infrastructure.Persistence
         public DbSet<User> Users { get; set; }
         public DbSet<Account> Accounts { get; set; }
         public DbSet<AccountUser> AccountUser { get; set; }
+        public DbSet<Tokens> Tokens { get; set; }
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {

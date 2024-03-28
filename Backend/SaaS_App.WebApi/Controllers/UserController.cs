@@ -32,15 +32,12 @@ namespace SaaS_App.WebApi.Controllers
         }
 
         [HttpPost]
-        public void SendMail()
+        public async Task<IActionResult> SendMail(SendRestPasswordLinkCommand.Request request)
         {
-            var message = new Message()
-            {
-                Email = "krystian.sasiadek@protonmail.com",
-                Subject =  "Test",
-                Content =  "<h1>Test</h1>"
-            };
+            var userEmail = await _mediator.Send(request);
+            var message = CreateMessage(request.Email,request.Subject,userEmail.ResetLink);
             _emailSender.SendEmail(message);
+            return Ok($"Reset password link was sent");
         }
 
         [HttpGet]
@@ -123,6 +120,17 @@ namespace SaaS_App.WebApi.Controllers
             {
                 HttpOnly = true,
             });
+        }
+
+        private Message CreateMessage(string email, string subject, string content)
+        {
+            var message = new Message()
+            {
+                To = email,
+                Subject = subject,
+                Content = content
+            };
+            return message;
         }
     }
 }

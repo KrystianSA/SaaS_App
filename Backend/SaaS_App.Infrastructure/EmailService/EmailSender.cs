@@ -24,8 +24,8 @@ namespace SaaS_App.Infrastructure.EmailService
         private MimeMessage CreateEmailMessage(Message message)
         {
             var emailMessage = new MimeMessage();
-            emailMessage.From.Add(new MailboxAddress("email", _options.From));
-            emailMessage.To.Add(new MailboxAddress("email",message.Email));
+            emailMessage.From.Add(new MailboxAddress("Email", _options.From));
+            emailMessage.To.Add(new MailboxAddress("Email",message.To));
             emailMessage.Subject = message.Subject;
             emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Text) { Text = message.Content };
 

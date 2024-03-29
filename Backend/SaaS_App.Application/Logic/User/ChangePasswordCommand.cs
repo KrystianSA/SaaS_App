@@ -41,9 +41,11 @@ namespace SaaS_App.Application.Logic.User
                 if (isTokenValid) { throw new ErrorException("TokenIsExpired"); }
 
                 var newHashedPassword = _passwordManager.HashPassword(request.NewPassword);
-                var updatedPassword = await _dbContext.Users.ExecuteUpdateAsync(property => property
-                                            .SetProperty(password => password.HashedPassword, newHashedPassword));
 
+                await _dbContext.Users.ExecuteUpdateAsync(property => property
+                                            .SetProperty(password => password.HashedPassword, newHashedPassword));
+                await _dbContext.Tokens.Where(token => token.Token_Expiry < DateTime.UtcNow
+                                                || token.Token == request.Token).ExecuteDeleteAsync();
                 await _dbContext.SaveChangesAsync();
 
                 return new Result() { };

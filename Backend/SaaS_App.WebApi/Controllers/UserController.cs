@@ -32,12 +32,12 @@ namespace SaaS_App.WebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SendMail(SendRestPasswordLinkCommand.Request request)
+        public async Task<IActionResult> SendResetLink(SendRestPasswordLinkCommand.Request request)
         {
             var userEmail = await _mediator.Send(request);
-            var message = CreateMessage(request.Email,request.Subject,userEmail.ResetLink);
+            var message = CreateMessage(userEmail.Email,userEmail.Subject,userEmail.ResetLink);
             _emailSender.SendEmail(message);
-            return Ok($"Reset password link was sent");
+            return Accepted();
         }
 
         [HttpGet]

@@ -2,11 +2,10 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SaaS_App.Application.Exceptions;
-using SaaS_App.Application.Helpers;
 using SaaS_App.Application.Interfaces;
 using SaaS_App.Application.Logic.Abstractions;
+using SaaS_App.Application.Logic.User.Helpers;
 using SaaS_App.Domain.Entities;
-using SaaS_App.Infrastructure.Email;
 
 namespace SaaS_App.Application.Logic.User
 {
@@ -15,10 +14,11 @@ namespace SaaS_App.Application.Logic.User
         public class Request : IRequest<Result>
         {
             public required string Email { get; set; }
-            public required string Subject { get; set; }
         }
         public class Result
         {
+            public required string Email { get; set; }
+            public required string Subject { get; set; }
             public required string ResetLink { get; set; }
         }
 
@@ -54,7 +54,12 @@ namespace SaaS_App.Application.Logic.User
                 await _dbContext.Tokens.AddAsync(tokenModel);
                 await _dbContext.SaveChangesAsync();
 
-                return new Result() { ResetLink = "http://localhost:5164/reset-password?token=" + hashedToken };
+                return new Result()
+                { 
+                    Email = request.Email,
+                    Subject = "Reset password",
+                    ResetLink = "http://localhost:3000/reset-password?token=" + hashedToken
+                };
             }
         }
         public class Validator : AbstractValidator<Request>

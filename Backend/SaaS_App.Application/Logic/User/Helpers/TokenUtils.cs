@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace SaaS_App.Application.Helpers
+namespace SaaS_App.Application.Logic.User.Helpers
 {
     public class TokenUtils
     {

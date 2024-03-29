@@ -18,7 +18,7 @@
                     </VBtn>
                 </VCardActions>
                 <VCardText class="text-caption text-center">
-                    <NuxtLink class="text-blue" to="/changePassword">Forget your password ?</NuxtLink>
+                    <NuxtLink class="text-blue" to="/forget-password">Forget your password ?</NuxtLink>
                 </VCardText>
                 <VCardText class="text-caption text-center">
                     Haven't account yet ?

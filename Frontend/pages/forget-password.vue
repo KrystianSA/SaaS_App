@@ -2,14 +2,10 @@
     <div class="d-flex align-center justify-center fill-height">
         <VCard width="600">
             <VForm :disabled="loading" @submit.prevent="submit">
-                <VCardTitle class="text-center">Remind Password</VCardTitle>
+                <VCardTitle class="text-center">Send Reset Link</VCardTitle>
                 <VCardText>
                     <VTextField :rules="[ruleRequired, ruleEmail]" variant="solo-filled" label="Email"
                         v-model="modelData.email"></VTextField>
-                    <VTextField :rules="[ruleRequired]" variant="solo-filled" label="Password" type="password"
-                        v-model="modelData.newPassword"></VTextField>
-                    <VTextField :rules="[ruleRequired,rules.samePasswords]" variant="solo-filled" label="Confirm Password" type="password">
-                    </VTextField>
                     <VAlert v-if="error" type="error">{{ error }}</VAlert>
                 </VCardText>
                 <VCardActions>
@@ -25,55 +21,42 @@
 
 <script setup>
 const { ruleRequired, ruleEmail } = useFormValidationRules();
-const { getErrorMessage } = useWebApiResponseParser();
-const router = useRouter();
 const globalMessageStore = useGlobalMessageStore();
-
-const rules = {
-    samePasswords: (v) => v === modelData.value.newPassword || "The passwords are not the same"
-};
-
 
 definePageMeta({
     layout: "no-auth",
 })
 
 const modelData = ref({
-    email: '',
-    newPassword: ''
+    email: ''
 });
 
 const submit = async (ev) => {
     const { valid } = await ev;
     if (valid) {
-        changePassword();
+        ResetLink();
     }
 }
 
 const error = ref("");
 const loading = ref(false);
 
-const changePassword = () => {
+const ResetLink = () => {
     loading.value = true;
     error.value = "";
 
-    useWebApiFetch('/User/ChangePassword', {
+    useWebApiFetch('/User/SendResetLink', {
         method: 'POST',
         body: { ...modelData.value },
         onResponseError: ({ response }) => {
-            error.value = getErrorMessage(response, {
-                "InvalidAdressEmail": "Invalid adress email",
-                "SomethingWentWrong": "Something went wrong"
-            });
+            globalMessageStore.showSuccessMessage("If email adress is valid, you will achieve link to reset your password");
         }
     })
-        .then((response) => {
-            if (response.data.value) {
-                globalMessageStore.showSuccessMessage("Password Changed !");
-                router.push({ path: '/' });
-            }
+        .then(() => {
+            globalMessageStore.showSuccessMessage("If email adress is valid, you will achieve link to reset your password");
         })
         .finally(() => {
+            modelData.value.email = '';
             loading.value = false;
         });
 };

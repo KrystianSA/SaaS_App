@@ -1,36 +1,56 @@
 <template>
     <v-app>
-        <v-navigation-drawer v-model="drawer" v-if="userStore.$state.isLoggedIn === true">
-            <v-list-item lines="two">
-                <template v-slot:prepend>
-                    <v-avatar color="red" v-if="userStore.$state.userData?.email">
-                        {{ userStore.$state.userData.email[0].toUpperCase() }}
-                    </v-avatar>
-                </template>
-                <VListItemTitle v-if="accountStore.$state.accountData?.email">{{ accountStore.$state.accountData.email
-                    }}
-                </VListItemTitle>
-                <VListItemSubtitle v-if="userStore.$state.userData?.email">{{ userStore.$state.userData.email }}
-                </VListItemSubtitle>
-            </v-list-item>
+        <v-navigation-drawer width="auto" v-model="drawer" v-if="userStore.$state.isLoggedIn === true">
+            <VList>
+                <VListGroup>
+                    <template v-slot:activator="{ props }">
+                        <v-list-item v-bind="props" prepend-icon="mdi-account-circle">
+                            <template v-slot:prepend>
+                                <v-avatar color="red" v-if="userStore.$state.userData?.email">
+                                    {{ userStore.$state.userData.email[0].toUpperCase() }}
+                                </v-avatar>
+                            </template>
+                            <VListItemTitle v-if="accountStore.$state.accountData?.email">
+                                {{ accountStore.$state.accountData.email }}
+                            </VListItemTitle>
+                        </v-list-item>
+                    </template>
+                    <VListItem>
+                        <v-menu v-model="showCard" :close-on-content-click="false" location="end">
+                            <template v-slot:activator="{ props }">
+                                <VBtn v-bind="props" :prepend-icon="mdiCog" variant="plain" text="Settings"></VBtn>
+                            </template>
+                            <v-card min-width="auto">
+                                <v-list>
+                                    <v-list-item>
+                                        <VBtn to="/forget-password" variant="plain" text="Change password"></VBtn>
+                                    </v-list-item>
+                                    <v-list-item>
+                                        <VBtn @click=toggleTheme() variant="plain" text="Toogle Theme"></VBtn>
+                                    </v-list-item>
+                                    <v-list-item>
+                                        <VBtn variant="plain" text="Other Settings"></VBtn>
+                                    </v-list-item>
+                                </v-list>
+                            </v-card>
+                        </v-menu>
+                    </VListItem>
+                    <VListItem>
+                        <VListItemAction>
+                            <VBtn @click="logout" :prepend-icon="mdiLogout" variant="plain" text="Logout"></VBtn>
+                        </VListItemAction>
+                    </VListItem>
+                </VListGroup>
+            </VList>
             <VDivider></VDivider>
             <v-list>
                 <v-list-item v-for="item in listSideNavBar" :key="item.name" :prepend-icon="item.icon"
                     :title="item.name" :to="item.route">
                 </v-list-item>
             </v-list>
-            <template v-slot:append>
-                <div class="pa-2">
-                    <v-btn block @click="logout">
-                        Logout
-                    </v-btn>
-                </div>
-            </template>
         </v-navigation-drawer>
         <v-app-bar v-if="userStore.$state.isLoggedIn === true">
             <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
-            <v-spacer></v-spacer>
-            <v-btn @click=toggleTheme() :icon=mdiThemeLightDark title="Przełącz motyw"></v-btn>
         </v-app-bar>
         <v-main>
             <div>
@@ -47,15 +67,17 @@ import {
     mdiAccount,
     mdiAccessPoint,
     mdiAccountCowboyHatOutline,
-    mdiThemeLightDark
+    mdiThemeLightDark,
+    mdiCog,
+    mdiLogout
 } from '@mdi/js';
 import { useTheme } from 'vuetify'
 import LoginDialog from '~/components/LoginDialog.vue';
 import ConfirmDialog from '~/components/ConfirmDialog.vue';
 import { useStorage } from '@vueuse/core';
 
+const showCard = ref(true);
 const confirmDialog = ref(null);
-
 const antiForgeryStore = useAntiForgeryStore();
 
 const userStore = useUserStore();

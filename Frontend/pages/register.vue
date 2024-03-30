@@ -4,11 +4,16 @@
             <VForm :disabled="loading" @submit.prevent="submit">
                 <VCardTitle class="text-center">Register</VCardTitle>
                 <VCardText>
+                    <VTextField :rules="[ruleRequired]" variant="solo-filled" label="Name"
+                        v-model="registerData.name"></VTextField>
+                    <VTextField :rules="[ruleRequired]" variant="solo-filled" label="Surname"
+                        v-model="registerData.surname"></VTextField>
                     <VTextField :rules="[ruleRequired, ruleEmail]" variant="solo-filled" label="Email"
                         v-model="registerData.email"></VTextField>
                     <VTextField :rules="[ruleRequired]" variant="solo-filled" label="Password" type="password"
                         v-model="registerData.password"></VTextField>
-                    <VTextField :rules="[ruleRequired,rules.samePasswords]" variant="solo-filled" label="Confirm Password" type="password">
+                    <VTextField :rules="[ruleRequired, rules.samePasswords]" variant="solo-filled"
+                        label="Confirm Password" type="password">
                     </VTextField>
                     <VAlert v-if="error" type="error">{{ error }}</VAlert>
                 </VCardText>
@@ -40,6 +45,8 @@ definePageMeta({
 })
 
 const registerData = ref({
+    name: '',
+    surname:'',
     email: '',
     password: ''
 });

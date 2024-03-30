@@ -1,6 +1,8 @@
 ﻿CREATE TABLE [dbo].[Users]
 (
 	[Id] INT IDENTITY (1, 1) NOT NULL, 
+    [Name] Nchar(50) NOT NULL,
+    [Surname] Nchar(50) NOT NULL,
     [Email] NCHAR(100) NOT NULL, 
     [HashedPassword] NCHAR(200) NOT NULL, 
     [RegisterDate] DATETIMEOFFSET NOT NULL,

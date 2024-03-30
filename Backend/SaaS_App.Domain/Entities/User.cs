@@ -4,6 +4,8 @@ namespace SaaS_App.Domain.Entities
 {
     public class User : DomainEntity
     {
+        public required string Name {  get; set; }
+        public required string Surname {  get; set; }
         public required string Email { get; set; }
         public required string HashedPassword { get; set; }
         public DateTimeOffset RegisterDate { get; set; }

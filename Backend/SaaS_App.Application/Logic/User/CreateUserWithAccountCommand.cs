@@ -12,6 +12,8 @@ namespace SaaS_App.Application.Logic.User
     {
         public class Request : IRequest<Result>
         {
+            public required string Name { get; set; }
+            public required string Surname { get; set; }
             public required string Email { get; set; }
             public required string Password { get; set; }
         }
@@ -43,6 +45,8 @@ namespace SaaS_App.Application.Logic.User
                 var utcNow = DateTime.UtcNow;
                 var newUser = new Domain.Entities.User()
                 {
+                    Name = request.Name,
+                    Surname = request.Surname,
                     Email = request.Email,
                     HashedPassword = "",
                     RegisterDate = utcNow,

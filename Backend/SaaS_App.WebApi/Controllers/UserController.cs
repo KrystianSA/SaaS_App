@@ -32,7 +32,14 @@ namespace SaaS_App.WebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SendResetLink(SendRestPasswordLinkCommand.Request request)
+        public async Task<IActionResult> ActivateUserWithAccount([FromBody] ActivateUserWithAccountCommand.Request user)
+        {
+            await _mediator.Send(user);
+            return Ok();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SendResetLink(CreateRestPasswordLinkCommand.Request request)
         {
             var userEmail = await _mediator.Send(request);
             var message = CreateMessage(userEmail.Email,userEmail.Subject,userEmail.ResetLink);
@@ -61,12 +68,14 @@ namespace SaaS_App.WebApi.Controllers
         public async Task<ActionResult> CreateUserWithAccount([FromBody] CreateUserWithAccountCommand.Request user)
         {
             var createAccountResult = await _mediator.Send(user);
-            var token = _jwtManager.GenerateJwtToken(createAccountResult.UserId);
-            SetTokenCookie(token);
-            return Ok(new JwtToken() { AccessToken = token });
+            var message = CreateMessage(createAccountResult.Email, createAccountResult.Subject, createAccountResult.ActivateAccountLink);
+            _emailSender.SendEmail(message);
+            return Ok("We've sent you an email with instructions to activate your account");
         }
 
         [HttpPost]
+        [IgnoreAntiforgeryToken]
+
         public async Task<ActionResult> Login([FromBody] LoginCommand.Request user)
         {
             var loginResult = await _mediator.Send(user);

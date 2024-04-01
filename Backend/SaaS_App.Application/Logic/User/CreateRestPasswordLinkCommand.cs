@@ -9,7 +9,7 @@ using SaaS_App.Domain.Entities;
 
 namespace SaaS_App.Application.Logic.User
 {
-    public static class SendRestPasswordLinkCommand
+    public static class CreateRestPasswordLinkCommand
     {
         public class Request : IRequest<Result>
         {

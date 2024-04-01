@@ -6,6 +6,7 @@ namespace SaaS_App.Domain.Entities
     {
         public required string Name { get; set; }
         public DateTimeOffset CreateDate { get; set; }
+        public bool IsActive { get; set; } = false;
         public AccountUser AccountUser { get; set; } = new AccountUser();
     }
 }

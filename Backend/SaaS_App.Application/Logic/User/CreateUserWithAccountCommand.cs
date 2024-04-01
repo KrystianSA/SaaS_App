@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using SaaS_App.Application.Exceptions;
 using SaaS_App.Application.Interfaces;
 using SaaS_App.Application.Logic.Abstractions;
+using SaaS_App.Application.Logic.User.Helpers;
 using SaaS_App.Domain.Entities;
 
 namespace SaaS_App.Application.Logic.User
@@ -20,12 +21,15 @@ namespace SaaS_App.Application.Logic.User
         public class Result
         {
             public required int UserId { get; set; }
+            public required string Email { get; set; }
+            public required string Subject { get; set; }
+            public required string ActivateAccountLink { get; set; }
         }
 
         public class Handler : BaseCommandHandler, IRequestHandler<Request, Result>
         {
             private readonly IPasswordManager _passwordManager;
-
+            public const int LENGTH_TOKEN = 128;
             public Handler(IApplicationDbContext dbContext,
                 ICurrentAccountProvider currentAccountProvider,
                 IPasswordManager passwordManager) : base(dbContext, currentAccountProvider)
@@ -71,9 +75,29 @@ namespace SaaS_App.Application.Logic.User
 
                 _dbContext.AccountUser.Add(newAccountUser);
 
+                var token = TokenUtils.GenerateToken(LENGTH_TOKEN);
+                var hashedToken = TokenUtils.GenerateHash(token);
+
+
+                var tokenModel = new Tokens()
+                {
+                    UserId = request.Email,
+                    Token = hashedToken,
+                    Token_Expiry = DateTime.UtcNow.AddDays(1),
+                };
+
+                await _dbContext.Tokens.AddAsync(tokenModel);
+
                 await _dbContext.SaveChangesAsync(cancellationToken);
 
-                return new Result() { UserId = newUser.Id };
+                return new Result()
+                {
+                    UserId = newUser.Id,
+                    Email = request.Email,
+                    Subject = "Link To Activate Account",
+                    ActivateAccountLink = 
+                    $"http://localhost:3000/activate-account?token={hashedToken}&email={request.Email}"
+                };
             }
         }
         public class Validator : AbstractValidator<Request>

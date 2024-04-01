@@ -33,12 +33,12 @@ namespace SaaS_App.Application.Logic.User
             public async Task<Result> Handle(Request request, CancellationToken cancellationToken)
             {
                 var user = await _dbContext.Users.FirstOrDefaultAsync(user => user.Email == request.Email);
+                var account = await _dbContext.Accounts.FirstOrDefaultAsync(account => account.Name == request.Email);
 
-                if (user != null)
+                if (user != null && account!.IsActive == true)
                 {
                     if (_passwordManager.VerifyPassword(user.HashedPassword, request.Password))
                     {
-
                         return new Result() { UserId = user.Id };
                     }
                 }

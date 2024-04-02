@@ -32,14 +32,17 @@ namespace SaaS_App.Application.Logic.User
 
             public async Task<Result> Handle(Request request, CancellationToken cancellationToken)
             {
-                var user = await _dbContext.Users.FirstOrDefaultAsync(user => user.Email == request.Email);
-                var account = await _dbContext.Accounts.FirstOrDefaultAsync(account => account.Name == request.Email);
+                var userData = await _dbContext.AccountUser
+                    .Include(user => user.User)
+                    .Include(account => account.Account)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(au => au.User.Email == request.Email || au.Account.Name == request.Email);
 
-                if (user != null && account!.IsActive == true)
+                if (userData != null && userData.Account.IsActive)
                 {
-                    if (_passwordManager.VerifyPassword(user.HashedPassword, request.Password))
+                    if (_passwordManager.VerifyPassword(userData.User.HashedPassword, request.Password))
                     {
-                        return new Result() { UserId = user.Id };
+                        return new Result() { UserId = userData.UserId };
                     }
                 }
                 throw new ErrorException("InvalidLoginOrPassword");

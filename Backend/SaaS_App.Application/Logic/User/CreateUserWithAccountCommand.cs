@@ -75,9 +75,7 @@ namespace SaaS_App.Application.Logic.User
 
                 _dbContext.AccountUser.Add(newAccountUser);
 
-                var token = TokenUtils.GenerateToken(LENGTH_TOKEN);
-                var hashedToken = TokenUtils.GenerateHash(token);
-
+                var hashedToken = TokenUtils.GenerateToken(LENGTH_TOKEN).GenerateHash();
 
                 var tokenModel = new Tokens()
                 {

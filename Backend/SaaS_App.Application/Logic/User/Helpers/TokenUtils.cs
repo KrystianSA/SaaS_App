@@ -3,7 +3,7 @@ using System.Text;
 
 namespace SaaS_App.Application.Logic.User.Helpers
 {
-    public class TokenUtils
+    public static class TokenUtils
     {
         private const string Alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         private static readonly Random Random = new Random();
@@ -12,7 +12,7 @@ namespace SaaS_App.Application.Logic.User.Helpers
             return GenerateToken(Alphabet, length);
         }
 
-        public static string GenerateToken(string characters, int length)
+        private static string GenerateToken(string characters, int length)
         {
             return new string(Enumerable
               .Range(0, length)
@@ -20,7 +20,7 @@ namespace SaaS_App.Application.Logic.User.Helpers
               .ToArray());
         }
 
-        public static string GenerateHash(string text)
+        public static string GenerateHash(this string text)
         {
             using (var hash = SHA256.Create())
             {

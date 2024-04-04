@@ -20,16 +20,13 @@ namespace SaaS_App.Application.Logic.User
         }
         public class Result
         {
-            public required int UserId { get; set; }
-            public required string Email { get; set; }
-            public required string Subject { get; set; }
-            public required string ActivateAccountLink { get; set; }
+            public required int AccountId { get; set; }
         }
 
         public class Handler : BaseCommandHandler, IRequestHandler<Request, Result>
         {
+            private const int TOKEN_LENGTH = 128;
             private readonly IPasswordManager _passwordManager;
-            public const int LENGTH_TOKEN = 128;
             public Handler(IApplicationDbContext dbContext,
                 ICurrentAccountProvider currentAccountProvider,
                 IPasswordManager passwordManager) : base(dbContext, currentAccountProvider)
@@ -47,6 +44,7 @@ namespace SaaS_App.Application.Logic.User
                 }
 
                 var utcNow = DateTime.UtcNow;
+
                 var newUser = new Domain.Entities.User()
                 {
                     Name = request.Name,
@@ -56,7 +54,6 @@ namespace SaaS_App.Application.Logic.User
                     RegisterDate = utcNow,
                 };
                 newUser.HashedPassword = _passwordManager.HashPassword(request.Password);
-
                 _dbContext.Users.Add(newUser);
 
                 var newAccount = new Domain.Entities.Account()
@@ -64,7 +61,6 @@ namespace SaaS_App.Application.Logic.User
                     Name = request.Email,
                     CreateDate = utcNow,
                 };
-
                 _dbContext.Accounts.Add(newAccount);
 
                 var newAccountUser = new AccountUser()
@@ -72,45 +68,35 @@ namespace SaaS_App.Application.Logic.User
                     Account = newAccount,
                     User = newUser
                 };
-
                 _dbContext.AccountUser.Add(newAccountUser);
 
-                var hashedToken = TokenUtils.GenerateToken(LENGTH_TOKEN).GenerateHash();
-
-                var tokenModel = new Tokens()
+                var token = new Tokens()
                 {
-                    UserId = request.Email,
-                    Token = hashedToken,
+                    AccountUser = newAccountUser,
+                    HashedToken = "",
                     Token_Expiry = DateTime.UtcNow.AddDays(1),
                 };
-
-                await _dbContext.Tokens.AddAsync(tokenModel);
+                token.HashedToken = TokenUtils.GenerateToken(TOKEN_LENGTH).GenerateHash();
+                _dbContext.Tokens.Add(token);
 
                 await _dbContext.SaveChangesAsync(cancellationToken);
 
-                return new Result()
-                {
-                    UserId = newUser.Id,
-                    Email = request.Email,
-                    Subject = "Link To Activate Account",
-                    ActivateAccountLink = 
-                    $"http://localhost:3000/activate-account?token={hashedToken}&email={request.Email}"
-                };
+                return new Result(){ AccountId = newAccount.Id };
             }
-        }
-        public class Validator : AbstractValidator<Request>
-        {
-            public Validator()
+            public class Validator : AbstractValidator<Request>
             {
-                RuleFor(email => email.Email)
-                    .NotEmpty()
-                    .EmailAddress()
-                    .MaximumLength(100);
+                public Validator()
+                {
+                    RuleFor(email => email.Email)
+                        .NotEmpty()
+                        .EmailAddress()
+                        .MaximumLength(100);
 
 
-                RuleFor(password => password.Password)
-                   .NotEmpty()
-                   .MaximumLength(50);
+                    RuleFor(password => password.Password)
+                       .NotEmpty()
+                       .MaximumLength(50);
+                }
             }
         }
     }

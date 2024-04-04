@@ -1,10 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using SaaS_App.Application.Logic.User;
-using SaaS_App.Infrastructure.Auth;
-using SaaS_App.WebApi.Application.Auth;
-using SaaS_App.WebApi.Application.Response;
+using SaaS_App.Application.Logic.Account;
+using SaaS_App.Infrastructure.Email;
 
 namespace SaaS_App.WebApi.Controllers
 {
@@ -12,15 +9,27 @@ namespace SaaS_App.WebApi.Controllers
     [ApiController]
     public class AccountController : BaseController
     {
-        public AccountController(ILogger<UserController> logger, IMediator mediator) : base(logger, mediator)
+        private readonly IEmailSender _emailSender;
+
+        public AccountController(ILogger<UserController> logger,
+            IMediator mediator,
+            IEmailSender emailSender) : base(logger, mediator)
         {
+            _emailSender = emailSender;
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetCurrentAccount() 
+        public async Task<IActionResult> GetCurrentAccount()
         {
             var currentAccountResult = await _mediator.Send(new CurrentAccountQuery.Request());
             return Ok(currentAccountResult);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ActivateAccount([FromBody] ActivateAccountCommand.Request user)
+        {
+            await _mediator.Send(user);
+            return Ok();
         }
     }
 }

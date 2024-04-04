@@ -1,6 +1,8 @@
 ﻿using MailKit.Net.Smtp;
 using Microsoft.Extensions.Options;
 using MimeKit;
+using SaaS_App.Application.Models.Email;
+using SaaS_App.Application.Models.Settings;
 using SaaS_App.Infrastructure.Email;
 
 namespace SaaS_App.Infrastructure.EmailService
@@ -13,7 +15,7 @@ namespace SaaS_App.Infrastructure.EmailService
         {
             _options = options.Value;
         }
-        public bool SendEmail(Message message)
+        public bool SendEmail(EmailMessage message)
         {
             var emailMessage = CreateEmailMessage(message);
             var isSent = Send(emailMessage);
@@ -21,11 +23,11 @@ namespace SaaS_App.Infrastructure.EmailService
            
         }
 
-        private MimeMessage CreateEmailMessage(Message message)
+        private MimeMessage CreateEmailMessage(EmailMessage message)
         {
             var emailMessage = new MimeMessage();
-            emailMessage.From.Add(new MailboxAddress("Email", _options.From));
-            emailMessage.To.Add(new MailboxAddress("Email",message.To));
+            emailMessage.From.Add(new MailboxAddress("Sender", _options.From));
+            emailMessage.To.Add(new MailboxAddress("Audience",message.To));
             emailMessage.Subject = message.Subject;
             emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Text) { Text = message.Content };
 

@@ -4,13 +4,12 @@ using Microsoft.EntityFrameworkCore;
 using SaaS_App.Application.Interfaces;
 using SaaS_App.Application.Logic.Abstractions;
 
-namespace SaaS_App.Application.Logic.User
+namespace SaaS_App.Application.Logic.Account
 {
-    public static class ActivateUserWithAccountCommand
+    public static class ActivateAccountCommand
     {
         public class Request : IRequest<Result>
         {
-            public required string Email { get; set; }
             public required string Token { get; set; }
         }
         public class Result
@@ -25,16 +24,22 @@ namespace SaaS_App.Application.Logic.User
 
             public async Task<Result> Handle(Request request, CancellationToken cancellationToken)
             {
-                var token = await _dbContext.Tokens.FirstOrDefaultAsync(token => token.Token == request.Token);
-                if (token == null)
+                var account = await _dbContext.Tokens
+                    .Include(au => au.AccountUser.Account)
+                    .Where(token => token.HashedToken == request.Token)
+                    .FirstOrDefaultAsync();
+
+                if (account == null)
                 {
                     throw new Exception("SomethingWentWrong");
                 }
-                await _dbContext.Accounts.Where(account => account.Name == request.Email).
-                                                ExecuteUpdateAsync(account => account.SetProperty(
-                                                    active => active.IsActive, true));
-                await _dbContext.Tokens.Where(token => token.Token_Expiry < DateTime.UtcNow
-                                                || token.Token == request.Token).ExecuteDeleteAsync();
+
+                account.AccountUser.Account.IsActive = true;
+
+                _dbContext.Tokens.Remove(account);
+
+                await _dbContext.SaveChangesAsync();
+
                 return new Result() { };
             }
         }

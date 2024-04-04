@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using SaaS_App.Application.Exceptions;
 using SaaS_App.Application.Interfaces;
 using SaaS_App.Application.Logic.Abstractions;
 
@@ -30,22 +29,21 @@ namespace SaaS_App.Application.Logic.User
 
             public async Task<Result> Handle(Request request, CancellationToken cancellationToken)
             {
-                var token = await _dbContext.Tokens.FirstOrDefaultAsync(token=> token.Token == request.Token);
+                var user = await _dbContext.AccountUser
+                        .Include(u => u.User)
+                        .Include(t=>t.Token)
+                        .Where(token => token.Token.HashedToken == request.Token)
+                        .FirstOrDefaultAsync();
 
-                if (token == null) 
+                if (user == null)
                 {
                     throw new Exception("SomethingWentWrong");
                 }
-           
-                var isTokenValid = DateTime.UtcNow > token.Token_Expiry;
-                if (isTokenValid) { throw new ErrorException("TokenIsExpired"); }
 
                 var newHashedPassword = _passwordManager.HashPassword(request.NewPassword);
 
-                await _dbContext.Users.ExecuteUpdateAsync(property => property
-                                            .SetProperty(password => password.HashedPassword, newHashedPassword));
-                await _dbContext.Tokens.Where(token => token.Token_Expiry < DateTime.UtcNow
-                                                || token.Token == request.Token).ExecuteDeleteAsync();
+                user.User.HashedPassword = newHashedPassword;
+                _dbContext.Tokens.Remove(user.Token);
                 await _dbContext.SaveChangesAsync();
 
                 return new Result() { };

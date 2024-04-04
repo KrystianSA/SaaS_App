@@ -10,7 +10,7 @@ namespace SaaS_App.Infrastructure.Persistence.Configurations
         {
             builder.HasOne(p => p.Account)
                 .WithOne(b => b.AccountUser)
-                .HasForeignKey<AccountUser>(b=>b.AccountId);
+                .HasForeignKey<AccountUser>(b => b.AccountId);
 
             builder.HasOne(p => p.User)
                 .WithOne(b => b.AccountUser)

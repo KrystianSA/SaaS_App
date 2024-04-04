@@ -1,4 +1,4 @@
-﻿namespace SaaS_App.Infrastructure.Email
+﻿namespace SaaS_App.Application.Models.Settings
 {
     public class EmailSetting
     {

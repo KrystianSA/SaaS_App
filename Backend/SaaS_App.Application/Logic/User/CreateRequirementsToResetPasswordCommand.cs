@@ -9,7 +9,7 @@ using SaaS_App.Domain.Entities;
 
 namespace SaaS_App.Application.Logic.User
 {
-    public static class CreateRestPasswordLinkCommand
+    public static class CreateRequirementsToResetPasswordCommand
     {
         public class Request : IRequest<Result>
         {
@@ -17,9 +17,6 @@ namespace SaaS_App.Application.Logic.User
         }
         public class Result
         {
-            public required string Email { get; set; }
-            public required string Subject { get; set; }
-            public required string ResetLink { get; set; }
         }
 
         public class Handler : BaseCommandHandler, IRequestHandler<Request, Result>
@@ -33,33 +30,30 @@ namespace SaaS_App.Application.Logic.User
 
             public async Task<Result> Handle(Request request, CancellationToken cancellationToken)
             {
-                var user = await _dbContext.Users.SingleOrDefaultAsync(email => email.Email == request.Email);
+                var user = await _dbContext.AccountUser
+                                .Include(u => u.User)
+                                .Include(t => t.Token)
+                                .Where(email => email.User.Email == request.Email)
+                                .FirstOrDefaultAsync();
 
                 if (user == null)
                 {
                     throw new ErrorException("EmailHasBeenSuccesfullySent");
                 }
 
-                var token = TokenUtils.GenerateToken(LENGTH_TOKEN);
-                var hashedToken = TokenUtils.GenerateHash(token);
-
+                var hashedToken = TokenUtils.GenerateToken(LENGTH_TOKEN).GenerateHash();
 
                 var tokenModel = new Tokens()
                 {
-                    UserId = user.Email,
-                    Token = hashedToken,
+                    AccountUser = user,
+                    HashedToken = hashedToken,
                     Token_Expiry = DateTime.UtcNow.AddDays(1),
                 };
 
                 await _dbContext.Tokens.AddAsync(tokenModel);
                 await _dbContext.SaveChangesAsync();
 
-                return new Result()
-                { 
-                    Email = request.Email,
-                    Subject = "Reset password",
-                    ResetLink = "http://localhost:3000/reset-password?token=" + hashedToken
-                };
+                return new Result(){ };
             }
         }
         public class Validator : AbstractValidator<Request>

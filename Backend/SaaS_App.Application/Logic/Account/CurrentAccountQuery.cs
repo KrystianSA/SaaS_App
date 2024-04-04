@@ -1,7 +1,5 @@
 ﻿using FluentValidation;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using SaaS_App.Application.Exceptions;
 using SaaS_App.Application.Interfaces;
 using SaaS_App.Application.Logic.Abstractions;
 

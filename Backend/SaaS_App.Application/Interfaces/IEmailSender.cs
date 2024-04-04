@@ -1,7 +1,9 @@
-﻿namespace SaaS_App.Infrastructure.Email
+﻿using SaaS_App.Application.Models.Email;
+
+namespace SaaS_App.Infrastructure.Email
 {
     public interface IEmailSender
     {
-        bool SendEmail(Message message);
+        bool SendEmail(EmailMessage message);
     }
 }

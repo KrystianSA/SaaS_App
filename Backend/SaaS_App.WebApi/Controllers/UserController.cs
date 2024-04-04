@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using SaaS_App.Application.Logic.Account;
 using SaaS_App.Application.Logic.User;
+using SaaS_App.Application.Models.Email;
 using SaaS_App.Infrastructure.Auth;
 using SaaS_App.Infrastructure.Email;
 using SaaS_App.WebApi.Application.Auth;
@@ -32,18 +34,12 @@ namespace SaaS_App.WebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ActivateUserWithAccount([FromBody] ActivateUserWithAccountCommand.Request user)
+        [IgnoreAntiforgeryToken]
+        public async Task<IActionResult> SendResetLink([FromBody] CreateRequirementsToResetPasswordCommand.Request request)
         {
-            await _mediator.Send(user);
-            return Ok();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> SendResetLink(CreateRestPasswordLinkCommand.Request request)
-        {
-            var userEmail = await _mediator.Send(request);
-            var message = CreateMessage(userEmail.Email,userEmail.Subject,userEmail.ResetLink);
-            _emailSender.SendEmail(message);
+            await _mediator.Send(request);
+            var email = await _mediator.Send(new CreateEmailToRestPasswordCommand.Request() { Email = request.Email});
+            _emailSender.SendEmail(email.emailData);
             return Accepted();
         }
 
@@ -58,8 +54,8 @@ namespace SaaS_App.WebApi.Controllers
         [IgnoreAntiforgeryToken]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordCommand.Request user)
         {
-            var changePasswordResult = await _mediator.Send(user); 
-            return Ok(changePasswordResult);
+            await _mediator.Send(user); 
+            return Ok();
         }
 
 
@@ -67,15 +63,13 @@ namespace SaaS_App.WebApi.Controllers
         [IgnoreAntiforgeryToken]
         public async Task<ActionResult> CreateUserWithAccount([FromBody] CreateUserWithAccountCommand.Request user)
         {
-            var createAccountResult = await _mediator.Send(user);
-            var message = CreateMessage(createAccountResult.Email, createAccountResult.Subject, createAccountResult.ActivateAccountLink);
-            _emailSender.SendEmail(message);
-            return Ok("We've sent you an email with instructions to activate your account");
+            var result = await _mediator.Send(user);
+            var email = await _mediator.Send(new CreateEmailToActivateAccountCommand.Request() { AccountId = result.AccountId });
+            _emailSender.SendEmail(email.emailData);
+            return Ok();
         }
 
         [HttpPost]
-        [IgnoreAntiforgeryToken]
-
         public async Task<ActionResult> Login([FromBody] LoginCommand.Request user)
         {
             var loginResult = await _mediator.Send(user);
@@ -95,7 +89,7 @@ namespace SaaS_App.WebApi.Controllers
         [HttpGet]
         public async Task<ActionResult> GetLoggedInUser()
         {
-            var LoggedInUserResult = await _mediator.Send(new CurrentAccountQuery.Request());
+            var LoggedInUserResult = await _mediator.Send(new SaaS_App.Application.Logic.Account.CurrentAccountQuery.Request());
             return Ok(LoggedInUserResult);
         }
 
@@ -129,17 +123,6 @@ namespace SaaS_App.WebApi.Controllers
             {
                 HttpOnly = true,
             });
-        }
-
-        private Message CreateMessage(string email, string subject, string content)
-        {
-            var message = new Message()
-            {
-                To = email,
-                Subject = subject,
-                Content = content
-            };
-            return message;
         }
     }
 }

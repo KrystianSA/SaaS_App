@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SaaS_App.Application.Models.Settings;
 using SaaS_App.Infrastructure.Email;
 
 namespace SaaS_App.Infrastructure.EmailService

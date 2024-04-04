@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Operations Version="1.0" xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
+  <Operation Name="Rename Refactor" Key="670e5171-c260-4cd6-91a9-e9c2b194ed71" ChangeDateTime="04/03/2024 16:06:13">
+    <Property Name="ElementName" Value="[dbo].[Tokens].[Token]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Tokens]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="HashedToken" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="719b7175-88af-4d87-9d75-939a21bf6d54" ChangeDateTime="04/03/2024 16:15:59">
+    <Property Name="ElementName" Value="[dbo].[Tokens].[UserId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Tokens]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="AccountId" />
+  </Operation>
+</Operations>

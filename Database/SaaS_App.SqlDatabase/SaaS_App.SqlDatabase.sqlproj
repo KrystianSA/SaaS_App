@@ -65,4 +65,7 @@
     <Build Include="dbo\Tables\AccountUser.sql" />
     <Build Include="dbo\Tables\Tokens.sql" />
   </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="SaaS_App.SqlDatabase.refactorlog" />
+  </ItemGroup>
 </Project>

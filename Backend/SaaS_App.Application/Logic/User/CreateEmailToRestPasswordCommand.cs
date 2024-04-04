@@ -7,6 +7,7 @@ using SaaS_App.Application.Interfaces;
 using SaaS_App.Application.Logic.Abstractions;
 using SaaS_App.Application.Logic.User.Helpers;
 using SaaS_App.Application.Models.Email;
+using SaaS_App.Domain.Entities;
 
 namespace SaaS_App.Application.Logic.User
 {
@@ -23,15 +24,15 @@ namespace SaaS_App.Application.Logic.User
 
         public class Handler : BaseCommandHandler, IRequestHandler<Request, Result>
         {
+            private readonly IEmailMessageCreator _emailMessageCreator;
             private const string SUBJECT_NAME = "Link to reset your password";
-            private const string SITE_NAME = "reset-password";
-            private readonly IConfiguration _configuration;
+            private const string WEBSITE_NAME = "reset-password";
 
             public Handler(IApplicationDbContext dbContext,
                 ICurrentAccountProvider currentAccountProvider,
-                IConfiguration configuration) : base(dbContext, currentAccountProvider)
+                IEmailMessageCreator emailMessageCreator) : base(dbContext, currentAccountProvider)
             {
-                _configuration = configuration;
+                _emailMessageCreator = emailMessageCreator;
             }
 
             public async Task<Result> Handle(Request request, CancellationToken cancellationToken)
@@ -47,20 +48,12 @@ namespace SaaS_App.Application.Logic.User
                     throw new ErrorException("EmailHasBeenSuccesfullySent");
                 }
 
-                var message = new EmailMessage()
-                {
-                    To = request.Email,
-                    Subject = SUBJECT_NAME,
-                    Content = ""
-                };
-                var domainName = _configuration["WebAppBaseUrl"];
-                var siteName = SITE_NAME;
-                var hashedToken = user.Token.HashedToken;
                 var parameters = new Dictionary<string, string>()
                 {
-                    {"token", hashedToken }
+                    { "token", user.Token.HashedToken}
                 };
-                message.Content = UrlGenerator.GenerateUrl(domainName!, siteName, parameters);
+
+                var message = _emailMessageCreator.CreateEmailWithUrl(user.User.Email, SUBJECT_NAME, WEBSITE_NAME, parameters);             
 
                 return new Result() { emailData = message }; ;
             }

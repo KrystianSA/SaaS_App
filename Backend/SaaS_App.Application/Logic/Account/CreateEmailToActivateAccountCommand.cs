@@ -6,6 +6,8 @@ using SaaS_App.Application.Interfaces;
 using SaaS_App.Application.Logic.Abstractions;
 using SaaS_App.Application.Logic.User.Helpers;
 using SaaS_App.Application.Models.Email;
+using SaaS_App.Application.Services;
+using SaaS_App.Domain.Entities;
 
 namespace SaaS_App.Application.Logic.Account
 {
@@ -22,22 +24,23 @@ namespace SaaS_App.Application.Logic.Account
 
         public class Handler : BaseCommandHandler, IRequestHandler<Request, Result>
         {
-            private readonly IConfiguration _configuration;
-            private const string SITE_NAME = "activate-account";
+            private const string WEBSITE_NAME = "activate-account";
             private const string SUBJECT_NAME = "Link to activate account";
+            private readonly IEmailMessageCreator _emailMessageCreator;
 
             public Handler(IApplicationDbContext dbContext,
                 ICurrentAccountProvider currentAccountProvider,
-                IConfiguration configuration) : base(dbContext, currentAccountProvider)
+                IEmailMessageCreator emailMessageCreator) : base(dbContext, currentAccountProvider)
             {
-                _configuration = configuration;
+                _emailMessageCreator = emailMessageCreator;
             }
 
             public async Task<Result> Handle(Request request, CancellationToken cancellationToken)
             {
-                var account = await _dbContext.Tokens
-                        .Include(a => a.AccountUser.Account)
-                        .Where(accountId => accountId.AccountUser.Account.Id == request.AccountId)
+                var account = await _dbContext.AccountUser
+                        .Include(a => a.Token)
+                        .Include(a => a.Account)
+                        .Where(accountId => accountId.AccountId == request.AccountId)
                         .FirstOrDefaultAsync();
 
                 if (account == null)
@@ -45,23 +48,13 @@ namespace SaaS_App.Application.Logic.Account
                     throw new Exception("SomethingWentWrong");
                 }
 
-                var email = account.AccountUser.Account.Name;
-                var message = new EmailMessage()
-                {
-                    To = email,
-                    Subject = SUBJECT_NAME,
-                    Content = ""
-                };
-                var domainName = _configuration["WebAppBaseUrl"];
-                var siteName = SITE_NAME;
-                var hashedToken = account.HashedToken;
                 var parameters = new Dictionary<string, string>()
                 {
-                    {"token", hashedToken }
+                    { "token", account.Token.HashedToken}
                 };
-                message.Content = UrlGenerator.GenerateUrl(domainName!, siteName, parameters);
+                var message = _emailMessageCreator.CreateEmailWithUrl(account.Account.Name, SUBJECT_NAME, WEBSITE_NAME, parameters);
 
-                return new Result() { emailData = message };
+                return new Result() { emailData = message }; ;
             }
         }
         public class Validator : AbstractValidator<Request>

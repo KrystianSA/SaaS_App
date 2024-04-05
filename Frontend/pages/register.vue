@@ -31,7 +31,6 @@
 <script setup>
 const { ruleRequired, ruleEmail } = useFormValidationRules();
 const { getErrorMessage } = useWebApiResponseParser();
-const userStore = useUserStore();
 const router = useRouter();
 const globalMessageStore = useGlobalMessageStore();
 
@@ -74,11 +73,9 @@ const register = () => {
             });
         }
     })
-        .then((response) => {
-            if (response.data.value) {
+        .then(() => {
                 globalMessageStore.showSuccessMessage("Account created successfully !");
                 router.push({ path: '/' });
-            }
         })
         .finally(() => {
             loading.value = false;

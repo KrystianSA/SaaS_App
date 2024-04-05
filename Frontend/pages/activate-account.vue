@@ -7,7 +7,6 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router';
 
-const globalMessageStore = useGlobalMessageStore();
 const route = useRoute();
 const router = useRouter();
 
@@ -17,21 +16,25 @@ definePageMeta({
 
 onMounted(() => {
     activateAccount();
-    console.log('work')
 });
 
 const error = ref("");
 const loading = ref(false);
 
+const tokenValidation = () => {
+    var token = route.query.token;
+    var newToken = token.replace(' ', '+');
+    return newToken
+}
+
 const activateAccount = () => {
     loading.value = true;
     error.value = "";
 
-    useWebApiFetch('/User/ActivateUserWithAccount', {
+    useWebApiFetch('/Account/ActivateAccount', {
         method: 'POST',
         body: { 
-            'token' : route.query.token,
-            'email' : route.query.email
+            'token' : tokenValidation()
          },
     })
         .then(() => {

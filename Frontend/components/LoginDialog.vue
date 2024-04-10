@@ -32,7 +32,7 @@
 <style lang="scss" scoped></style>
 
 <script setup>
-const { ruleRequired, ruleEmail } = useFormValidationRules();
+const { ruleRequired, ruleEmail} = useFormValidationRules();
 const { getErrorMessage } = useWebApiResponseParser();
 const userStore = useUserStore();
 const show = computed(() => {

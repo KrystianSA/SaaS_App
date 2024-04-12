@@ -8,7 +8,7 @@ export const useWebApiResponseParser = () => {
                 else if (response.status === 422) {
                     if (response._data && response._data.errors) {
                         let messages = [];
-                        const messageMapEx = {...defaultValidationMessages, ...messageMap };
+                        const messageMapEx = { ...defaultValidationMessages, ...messageMap };
                         const fieldMapEx = { ...defaultFieldNames, ...fieldMap };
 
                         response._data.errors.forEach(e => {
@@ -19,6 +19,9 @@ export const useWebApiResponseParser = () => {
                     }
 
                     return "Wprowadzono niepoprawne dane";
+                }
+                else if(response.status === 503) {
+                    return "Błędny login lub hasło";
                 }
                 else {
                     if (response._data && response._data.error) {
@@ -36,11 +39,11 @@ export const useWebApiResponseParser = () => {
 };
 
 const defaultValidationMessages = {
-    "NotEmptyValidator" : "Pole nie może być puste",
-    "EmailValidator" : "Niepoprawny adres email"
+    "NotEmptyValidator": "Pole nie może być puste",
+    "EmailValidator": "Niepoprawny adres email"
 }
 
 const defaultFieldNames = {
-    "Email" : "Email",
+    "Email": "Email",
     "Password": "Hasło"
 }

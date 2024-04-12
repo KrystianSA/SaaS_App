@@ -32,7 +32,7 @@
 <style lang="scss" scoped></style>
 
 <script setup>
-const { ruleRequired, ruleEmail} = useFormValidationRules();
+const { ruleRequired, ruleEmail } = useFormValidationRules();
 const { getErrorMessage } = useWebApiResponseParser();
 const userStore = useUserStore();
 const show = computed(() => {
@@ -54,8 +54,6 @@ const submit = async (ev) => {
     }
 }
 
-const antiForgeryStore = useAntiForgeryStore();
-
 const login = () => {
     loading.value = true;
     error.value = "";
@@ -67,6 +65,13 @@ const login = () => {
             error.value = getErrorMessage(response, {
                 "InvalidLoginOrPassword": "Błędny login lub hasło"
             });
+            if (response.status === 503) {
+                console.log(loginData.value.email);
+                useWebApiFetch('/Account/BlockAccount', {
+                    method: 'POST',
+                    body: { 'email': loginData.value.email },
+                });
+            }
         },
     })
         .then((response) => {

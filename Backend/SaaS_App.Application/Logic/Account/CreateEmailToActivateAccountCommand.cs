@@ -1,13 +1,9 @@
 ﻿using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using SaaS_App.Application.Interfaces;
 using SaaS_App.Application.Logic.Abstractions;
-using SaaS_App.Application.Logic.User.Helpers;
 using SaaS_App.Application.Models.Email;
-using SaaS_App.Application.Services;
-using SaaS_App.Domain.Entities;
 
 namespace SaaS_App.Application.Logic.Account
 {

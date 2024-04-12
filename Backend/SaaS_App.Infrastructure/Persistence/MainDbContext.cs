@@ -4,7 +4,7 @@ using SaaS_App.Domain.Entities;
 
 namespace SaaS_App.Infrastructure.Persistence
 {
-    public class MainDbContext : DbContext, IApplicationDbContext
+    public class MainDbContext : DbContext, IApplicationDbContext 
     {
         public MainDbContext(DbContextOptions<MainDbContext> options) : base(options)
         {

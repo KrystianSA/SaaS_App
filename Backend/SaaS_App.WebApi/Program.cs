@@ -8,6 +8,8 @@ using SaaS_App.WebApi.Application.Auth;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json.Serialization;
 using SaaS_App.Infrastructure.EmailService;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 
 namespace SaaS_App.WebApi
 {
@@ -87,6 +89,17 @@ namespace SaaS_App.WebApi
                 });
             });
             builder.Services.AddCors();
+        
+            builder.Services.AddMvc();
+
+            builder.Services.AddRateLimiter(options =>
+            {
+                options.AddFixedWindowLimiter("LoginLimiter", opt =>
+                {
+                    opt.Window = TimeSpan.FromSeconds(60);
+                    opt.PermitLimit = 3;
+                });
+            });
 
             var app = builder.Build();
 
@@ -105,6 +118,8 @@ namespace SaaS_App.WebApi
             app.UseAuthorization();
 
             app.MapControllers();
+
+            app.UseRateLimiter();
 
             if (app.Environment.IsDevelopment())
             {

@@ -1,10 +1,10 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 using SaaS_App.Application.Logic.Account;
 using SaaS_App.Application.Logic.User;
-using SaaS_App.Application.Models.Email;
 using SaaS_App.Infrastructure.Auth;
 using SaaS_App.Infrastructure.Email;
 using SaaS_App.WebApi.Application.Auth;
@@ -70,6 +70,7 @@ namespace SaaS_App.WebApi.Controllers
         }
 
         [HttpPost]
+        [EnableRateLimiting("LoginLimiter")]
         public async Task<ActionResult> Login([FromBody] LoginCommand.Request user)
         {
             var loginResult = await _mediator.Send(user);

@@ -2,16 +2,13 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using SaaS_App.Application.Exceptions;
 using SaaS_App.Application.Interfaces;
 using SaaS_App.Application.Logic.Abstractions;
 using SaaS_App.Application.Logic.User.Helpers;
 using SaaS_App.Application.Models.Email;
-using SaaS_App.Domain.Entities;
-
-namespace SaaS_App.Application.Logic.User
+namespace SaaS_App.Application.Logic.Account
 {
-    public static class CreateEmailToRestPasswordCommand
+    public static class CreateEmailAboutBlockCommand
     {
         public class Request : IRequest<Result>
         {
@@ -24,9 +21,9 @@ namespace SaaS_App.Application.Logic.User
 
         public class Handler : BaseCommandHandler, IRequestHandler<Request, Result>
         {
-            private readonly IEmailMessageCreator _emailMessageCreator;
-            private const string SUBJECT_NAME = "Link to reset your password";
             private const string WEBSITE_NAME = "reset-password";
+            private const string SUBJECT_NAME = "Support SaaS_App";
+            private readonly IEmailMessageCreator _emailMessageCreator;
 
             public Handler(IApplicationDbContext dbContext,
                 ICurrentAccountProvider currentAccountProvider,
@@ -37,35 +34,14 @@ namespace SaaS_App.Application.Logic.User
 
             public async Task<Result> Handle(Request request, CancellationToken cancellationToken)
             {
-                var user = await _dbContext.AccountUser
-                                    .Include(u => u.User)
-                                    .Include(t => t.Token)
-                                    .Where(email => email.User.Email == request.Email)
-                                    .FirstOrDefaultAsync();
-
-                if (user == null)
-                {
-                    throw new ErrorException("EmailHasBeenSuccesfullySent");
-                }
-
-                var parameters = new Dictionary<string, string>()
-                {
-                    { "token", user.Token.HashedToken}
-                };
-
-                var message = _emailMessageCreator.CreateEmailWithUrl(user.User.Email, SUBJECT_NAME, WEBSITE_NAME, parameters);
+                var parametersForUrl = new Dictionary<string, string>() { };
+                var text = "Drogi użytkowniku ! Dostałeś tę wiadomość z powodu zbyt dużej ilości prób zalogowania. Zmień swoje hasło natychmiastowo !";
+                var message = _emailMessageCreator.CreateEmailWithUrl(request.Email, SUBJECT_NAME, WEBSITE_NAME, parametersForUrl, text);
 
                 return new Result() { emailData = message }; ;
             }
         }
         public class Validator : AbstractValidator<Request>
-        {
-            public Validator()
-            {
-                RuleFor(email => email.Email)
-                    .NotEmpty()
-                    .EmailAddress();
-            }
-        }
+        { }
     }
 }

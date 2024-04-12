@@ -12,7 +12,7 @@ namespace SaaS_App.Application.Services
         {
             _domainName = configuration["WebAppBaseUrl"]!;
         }
-        public EmailMessage CreateEmailWithUrl(string email,string subject,string websiteName, Dictionary<string, string> parameters)
+        public EmailMessage CreateEmailWithUrl(string email,string subject,string websiteName, Dictionary<string, string> parametersToUrl, string text = null)
         {
             var message = new EmailMessage()
             {
@@ -20,7 +20,9 @@ namespace SaaS_App.Application.Services
                 Subject = subject,
                 Content = ""
             };
-            message.Content = GenerateUrl(_domainName, websiteName, parameters);
+            var url = GenerateUrl(_domainName, websiteName, parametersToUrl);
+            message.Content = $"{text} {url}";
+
             return message;
         }
         private string GenerateUrl(string domainName, string site, Dictionary<string, string> parameters)

@@ -11,7 +11,7 @@ namespace SaaS_App.WebApi.Controllers
     {
         private readonly IEmailSender _emailSender;
 
-        public AccountController(ILogger<UserController> logger,
+        public AccountController(ILogger<AccountController> logger,
             IMediator mediator,
             IEmailSender emailSender) : base(logger, mediator)
         {

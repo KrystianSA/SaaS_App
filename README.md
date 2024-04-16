@@ -1,6 +1,6 @@
 <H1>Hi ! :)</H1>
 <H2>I'm happy that you are reading this.</H2>
-<H2>My plan is to create SaaS aplication, which allow users to sell their own courses</H2>
+<H2>My plan is to create SaaS aplication, which gather new post in observe website</H2>
 <H2>Below you can see a short video and read about functions created to this time.</H2>
 <H3>Backend : </H3>
 <ul>

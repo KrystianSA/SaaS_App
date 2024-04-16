@@ -101,6 +101,8 @@ namespace SaaS_App.WebApi
                 });
             });
 
+            builder.Services.AddRss();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

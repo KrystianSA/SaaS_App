@@ -71,7 +71,7 @@ namespace SaaS_App.WebApi.Controllers
 
         [HttpPost]
         [EnableRateLimiting("LoginLimiter")]
-        public async Task<ActionResult> Login([FromBody] LoginCommand.Request user)
+        public async Task<ActionResult> Login([FromBody] ReadCommand.Request user)
         {
             var loginResult = await _mediator.Send(user);
             var token = _jwtManager.GenerateJwtToken(loginResult.UserId);

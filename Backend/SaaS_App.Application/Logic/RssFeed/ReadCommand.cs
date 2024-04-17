@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using SaaS_App.Application.Exceptions;
 using SaaS_App.Application.Interfaces;
 using SaaS_App.Application.Logic.Abstractions;
+using System.Text.RegularExpressions;
 
 namespace SaaS_App.Application.Logic.RssFeed
 {
@@ -31,7 +32,7 @@ namespace SaaS_App.Application.Logic.RssFeed
 
             public async Task<Result> Handle(Request request, CancellationToken cancellationToken)
             {
-                var result = await _rssManager.ReadAsync(request.Url);
+                var result = await _rssManager.ReadNewFeedAsync(request.Url);
                 return new Result() { Message = result };
             }
         }
@@ -39,7 +40,23 @@ namespace SaaS_App.Application.Logic.RssFeed
         {
             public Validator()
             {
-                
+                RuleFor(x => x.Url)
+                    .Must(ValidateUrlWithRegex)
+                    .WithMessage("InvalidAdressEmail");
+            }
+
+            private bool ValidateUrlWithRegex(string url)
+            {
+                var urlRegex = new Regex(
+                    @"^(https?):\/\/(?:[a-zA-Z0-9]" +
+                            @"(?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}" +
+                            @"(?::(?:0|[1-9]\d{0,3}|[1-5]\d{4}|6[0-4]\d{3}" +
+                            @"(?:\/(?:[-a-zA-Z0-9@%_\+.~#?&=]+\/?)*)?$",
+                    RegexOptions.IgnoreCase);
+
+                urlRegex.Matches(url);
+
+                return urlRegex.IsMatch(url);
             }
         }
     }

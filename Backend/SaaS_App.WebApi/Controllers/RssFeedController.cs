@@ -14,7 +14,7 @@ namespace SaaS_App.WebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Feedreader([FromBody] ReadCommand.Request request)
+        public async Task<IActionResult> FeedReader([FromBody] ReadCommand.Request request)
         {
             var result = await _mediator.Send(request);
             return Ok(result);

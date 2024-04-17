@@ -5,30 +5,30 @@ namespace SaaS_App.Infrastructure.Rss
 {
     public class RssManager : IRssManager
     {
-        public async Task<string> ReadAsync(string url)
+        public async Task<string> ReadNewFeedAsync(string url)
         {
-            var urls = FeedReader.GetFeedUrlsFromUrl(url);
-
-            string feedUrl = "";
-            if (urls.Count() < 1) // no url - probably the url is already the right feed url
-                feedUrl = url;
-            else if (urls.Count() == 1)
-                feedUrl = urls.First().Url;
-            else if (urls.Count() == 2) // if 2 urls, then its usually a feed and a comments feed, so take the first per default
-                feedUrl = urls.First().Url;
-            else
-            {
-                // show all urls and let the user select (or take the first or ...)
-                // ...
-                feedUrl = urls.First().Url;
-            }
+            string feedUrl = GetFeedUrl(url);
             var feed = await FeedReader.ReadAsync(feedUrl);
-            var result = feed.Items.FirstOrDefault();
-            if (result.PublishingDate < DateTime.UtcNow)
+            var result = feed.Items.First();
+            return result.Link;
+        }
+
+        private string GetFeedUrl(string url)
+        {
+            var feedUrls = FeedReader.GetFeedUrlsFromUrl(url);
+            var numberUrls = feedUrls.Count();
+            string resultFeed;
+
+            try
             {
-                return result.Link;
+                resultFeed = feedUrls.First().Url;
             }
-            return "Brak nowych postów";
+            catch (Exception)
+            {
+                throw new Exception("Brak odpowiedniego Url");
+            }
+              
+            return resultFeed;
         }
     }
 }

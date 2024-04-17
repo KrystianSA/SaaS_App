@@ -2,6 +2,6 @@
 {
     public interface IRssManager
     {
-        Task<string> ReadAsync(string url);
+        Task<string> ReadNewFeedAsync(string url);
     }
 }

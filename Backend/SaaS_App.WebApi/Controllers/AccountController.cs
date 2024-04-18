@@ -35,6 +35,7 @@ namespace SaaS_App.WebApi.Controllers
         }
 
         [HttpPost]
+        [IgnoreAntiforgeryToken]
         public async Task<IActionResult> ActivateAccount([FromBody] ActivateAccountCommand.Request user)
         {
             await _mediator.Send(user);

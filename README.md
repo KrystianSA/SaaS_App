@@ -18,3 +18,8 @@
 <H3>Fronted : </H3>
 
   https://github.com/KrystianSA/SaaS_App/assets/122701689/6ab7c23c-65c5-427d-bab8-be882a847d95
+
+<H4>Initial view of default site</H4>
+
+![Primarly_View](https://github.com/KrystianSA/SaaS_App/assets/122701689/66e78607-eecd-4c8f-a059-792d729d26c5)
+

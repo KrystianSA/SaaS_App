@@ -2,20 +2,32 @@
     <div>
         <VCard flat>
             <v-card-title class="d-flex align-center mx-5">
-                <VCheckbox @change="changeAll" v-model="checkboxState" class="d-flex align-center"></VCheckbox>
+                <VMenu location="end">
+                    <template v-slot:activator="{ props }">
+                        <VCheckbox v-bind="props" @change="changeAll" v-model="checkboxState"
+                            class="d-flex align-center"></VCheckbox>
+                    </template>
+                    <VCard>
+                        <VList>
+                            <VListItem @click="deleteItems(items.length)" title="Delete All"></VListItem>
+                            <VListItem title="All Post Read"></VListItem>
+                        </VList>
+                    </VCard>
+                </VMenu>
                 <v-spacer></v-spacer>
                 <v-text-field v-model="search" density="compact" label="Search" :prepend-inner-icon=mdiMagnify flat
                     hide-details single-line></v-text-field>
             </v-card-title>
-            <VList v-for="item in filteredItems" :key="item.title" class="mx-5">
+            <VList v-for="(item, index) in filteredItems" :key="index" class="mx-5">
                 <VCard>
                     <template v-slot:prepend>
-                        <VCheckbox :model-value="item.checked"></VCheckbox>
+                        <VCheckbox @click="changeColor(index)" :model-value="item.checked"></VCheckbox>
                     </template>
                     <template v-slot:title>{{ item.title }}</template>
-                    <template v-slot:subtitle>{{ item.url }}</template>
+                    <template v-slot:subtitle>
+                        <a :href="item.url" target="_blank">{{ item.url }}</a></template>
                     <template v-slot:append>
-                        <VBtn :icon=mdiDelete></VBtn>
+                        <VBtn :icon=mdiDelete @click="deleteItems(index)"></VBtn>
                     </template>
                 </VCard>
             </VList>
@@ -25,6 +37,15 @@
 
 <script setup>
 import { mdiDelete, mdiMagnify } from '@mdi/js';
+
+const deleteItems = (itemIndex) => {
+    if (items.value.length == itemIndex) {
+        items.value.splice(0, itemIndex)
+    }
+    else {
+        items.value.splice(itemIndex, 1)
+    }
+}
 
 const checkboxState = ref(false);
 const changeAll = () => {
@@ -45,26 +66,29 @@ onMounted(() => {
 });
 
 const filteredItems = computed(() => {
-  return items.value.filter(item => {
-    return item.title.toLowerCase().includes(search.value.toLowerCase());
-  });
+    return items.value.filter(item => {
+        return item.title.toLowerCase().includes(search.value.toLowerCase());
+    });
 });
 
 const search = ref('');
 const items = ref([
     {
+        index: 1,
         title: 'How to be safe in Network?',
         url: 'https://example.pl',
         checked: false,
     },
     {
+        index: 2,
         title: 'The best antimalware in 2024 !',
         url: 'https://example1.pl',
         checked: false,
     },
     {
+        index: 3,
         title: 'Password Manager, is it safe?',
-        url: 'https://example2.pl',
+        url: 'https://example.pl',
         checked: false,
     },
 ]);

@@ -51,6 +51,7 @@
         </v-navigation-drawer>
         <v-app-bar v-if="userStore.$state.isLoggedIn === true">
             <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
+            <!-- <VAppBarTitle text="Feed Reader"></VAppBarTitle> -->
         </v-app-bar>
         <v-main>
             <div>
@@ -64,10 +65,10 @@
 
 <script setup>
 import {
-    mdiAccount,
-    mdiAccessPoint,
-    mdiAccountCowboyHatOutline,
-    mdiThemeLightDark,
+    mdiPlus,
+    mdiEmail,
+    mdiTrashCan,
+    mdiDomain ,
     mdiCog,
     mdiLogout
 } from '@mdi/js';
@@ -82,7 +83,6 @@ const antiForgeryStore = useAntiForgeryStore();
 
 const userStore = useUserStore();
 const accountStore = useAccountStore();
-const global = useGlobalMessageStore()
 
 const logout = () => {
     confirmDialog.value.show({
@@ -101,9 +101,10 @@ const logout = () => {
 const drawer = ref(true)
 
 const listSideNavBar = [
-    { name: 'Position number 1', icon: mdiAccount, route: '/' },
-    { name: 'Position number 2', icon: mdiAccessPoint, route: '/' },
-    { name: 'Position number 3', icon: mdiAccountCowboyHatOutline, route: '/' },
+    { name: 'Main', icon: mdiDomain , route: '/' },
+    { name: 'New Feed', icon: mdiPlus, route: '/add-feed' },
+    { name: 'Posts', icon: mdiEmail, route: '/posts' },
+    { name: 'Bin', icon: mdiTrashCan, route: '/bin' },
 ]
 
 const theme = useTheme()

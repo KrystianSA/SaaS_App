@@ -77,7 +77,7 @@ import LoginDialog from '~/components/LoginDialog.vue';
 import ConfirmDialog from '~/components/ConfirmDialog.vue';
 import { useStorage } from '@vueuse/core';
 
-const showCard = ref(true);
+const showCard = ref(false);
 const confirmDialog = ref(null);
 const antiForgeryStore = useAntiForgeryStore();
 
@@ -102,7 +102,7 @@ const drawer = ref(true)
 
 const listSideNavBar = [
     { name: 'Main', icon: mdiDomain , route: '/' },
-    { name: 'New Feed', icon: mdiPlus, route: '/add-feed' },
+    { name: 'Subscribe Website', icon: mdiPlus, route: '/add-feed' },
     { name: 'Posts', icon: mdiEmail, route: '/posts' },
     { name: 'Bin', icon: mdiTrashCan, route: '/bin' },
 ]

@@ -5,7 +5,8 @@
                 <VMenu location="end">
                     <template v-slot:activator="{ props }">
                         <VCheckbox v-bind="props" @change="changeAll" v-model="checkboxState"
-                            class="d-flex align-center"></VCheckbox>
+                            class="d-flex align-center">
+                        </VCheckbox>
                     </template>
                     <VCard>
                         <VList>
@@ -47,6 +48,17 @@ a {
 <script setup>
 import { mdiDelete, mdiMagnify, mdiOpenInNew } from '@mdi/js';
 
+const postStore = usePostsStore();
+postStore.fetchItems();
+const items = postStore.$state.items;
+
+const filteredItems = computed(() => {
+    return items.filter(item => {
+        return item.title.toLowerCase().includes(search.value.toLowerCase());
+    });
+});
+
+const search = ref('');
 const checkboxState = ref(false);
 
 onMounted(() => {
@@ -54,8 +66,9 @@ onMounted(() => {
 });
 
 const readPost = (index) => {
-    if (items.value.length == index) {
-        items.value.forEach(item => {
+    if (items.length == index) {
+        console.log(items.length);
+        items.forEach(item => {
             item.color = 'white';
             item.checked = false;
         })
@@ -69,55 +82,27 @@ const readPost = (index) => {
 }
 
 const deleteItems = (itemIndex) => {
-    if (items.value.length == itemIndex) {
-        items.value.splice(0, itemIndex)
+    if (items.length == itemIndex) {
+        items.splice(0, itemIndex)
     }
     else {
-        items.value.splice(itemIndex, 1)
+        items.splice(itemIndex, 1)
     }
     checkboxState.value = false;
 }
 
 const changeAll = () => {
     if (checkboxState.value) {
-        items.value.forEach(item => {
+        items.forEach(item => {
             item.checked = true
         })
     }
     else {
-        items.value.forEach(item => {
+        items.forEach(item => {
             item.checked = false
         })
     }
 }
-
-const filteredItems = computed(() => {
-    return items.value.filter(item => {
-        return item.title.toLowerCase().includes(search.value.toLowerCase());
-    });
-});
-
-const search = ref('');
-const items = ref([
-    {
-        title: 'How to be safe in Network?',
-        url: 'https://example.pl',
-        checked: false,
-        color: 'red',
-    },
-    {
-        title: 'The best antimalware in 2024 !',
-        url: 'https://example1.pl',
-        checked: false,
-        color: 'red',
-    },
-    {
-        title: 'Password Manager, is it safe?',
-        url: 'https://example.pl',
-        checked: false,
-        color: 'red',
-    },
-]);
 
 const modelData = ref([{
     url: '',

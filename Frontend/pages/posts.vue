@@ -19,7 +19,7 @@
                 <v-text-field v-model="search" density="compact" label="Search" :prepend-inner-icon=mdiMagnify flat
                     hide-details single-line></v-text-field>
             </v-card-title>
-            <VList v-for="(item, index) in filteredItems" :key="index" class="mx-5">
+            <VList v-for="(item,index) in filteredItems" :key="index" class="mx-5">
                 <VCard :color="item.color">
                     <template v-slot:prepend>
                         <VCheckbox :model-value="item.checked"></VCheckbox>
@@ -81,13 +81,18 @@ const readPost = (index) => {
     checkboxState.value = false;
 }
 
+const binStore = useBinStore();
+
 const deleteItems = (itemIndex) => {
+    console.log(itemIndex);
     if (items.length == itemIndex) {
         items.splice(0, itemIndex)
     }
     else {
+        let element = items[itemIndex];
+        binStore.pushItems(element.title, element.url);
         items.splice(itemIndex, 1)
-    }
+     }
     checkboxState.value = false;
 }
 

@@ -13,11 +13,18 @@ namespace SaaS_App.WebApi.Controllers
         {
         }
 
-        [HttpPost]
-        public async Task<IActionResult> FeedReader([FromBody] ReadCommand.Request request)
+        [HttpGet]
+        public async Task<IActionResult> Read()
         {
-            var result = await _mediator.Send(request);
+            var result = await _mediator.Send(new ReadQuery.Request());
             return Ok(result);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Write([FromBody] WriteCommand.Request request)
+        {
+            await _mediator.Send(request);
+            return Ok();
         }
     }
 }

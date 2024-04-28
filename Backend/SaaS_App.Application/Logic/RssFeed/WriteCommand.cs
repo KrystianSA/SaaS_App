@@ -4,11 +4,12 @@ using Microsoft.EntityFrameworkCore;
 using SaaS_App.Application.Exceptions;
 using SaaS_App.Application.Interfaces;
 using SaaS_App.Application.Logic.Abstractions;
+using SaaS_App.Domain.Entities;
 using System.Text.RegularExpressions;
 
 namespace SaaS_App.Application.Logic.RssFeed
 {
-    public static class ReadCommand
+    public static class WriteCommand
     {
         public class Request : IRequest<Result>
         {
@@ -16,10 +17,9 @@ namespace SaaS_App.Application.Logic.RssFeed
         }
         public class Result
         {
-            public required string Message { get; set; }
         }
 
-        public class Handler : BaseQueryHandler, IRequestHandler<Request, Result>
+        public class Handler : BaseCommandHandler, IRequestHandler<Request, Result>
         {
             private readonly IRssManager _rssManager;
 
@@ -32,8 +32,39 @@ namespace SaaS_App.Application.Logic.RssFeed
 
             public async Task<Result> Handle(Request request, CancellationToken cancellationToken)
             {
-                var result = await _rssManager.ReadNewFeedAsync(request.Url);
-                return new Result() { Message = result };
+                var account =  await _currentAccountProvider.GetAuthenticatedAccount();
+                
+                if(account == null)
+                {
+                    throw new UnauthorizedException();
+                }
+
+                var accountId = account.Id;
+
+                var urlFeed = await _dbContext.UrlFeeds.FirstOrDefaultAsync(url => url.Url == request.Url);
+
+                if(urlFeed != null) 
+                {
+                    throw new ErrorException("UrlFeedExistInDatabase");
+                }
+
+                var url = _rssManager.GetFeedUrl(request.Url);
+
+                if(url == null)
+                {
+                    throw new ErrorException("UnfortunatelyFeedUrlsDoesNotExit");
+                }
+
+                var newUrlFeed = new UrlFeed()
+                {
+                    AccountId = accountId,
+                    Url = url,
+                };
+
+                _dbContext.UrlFeeds.Add(newUrlFeed);
+                await _dbContext.SaveChangesAsync();
+
+                return new Result() { };
             }
         }
         public class Validator : AbstractValidator<Request>
@@ -42,7 +73,7 @@ namespace SaaS_App.Application.Logic.RssFeed
             {
                 RuleFor(x => x.Url)
                     .Must(ValidateUrlWithRegex)
-                    .WithMessage("InvalidAdressEmail");
+                    .WithMessage("InvalidAdressUrl");
             }
 
             private bool ValidateUrlWithRegex(string url)

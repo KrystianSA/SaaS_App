@@ -5,29 +5,32 @@ namespace SaaS_App.Infrastructure.Rss
 {
     public class RssManager : IRssManager
     {
-        public async Task<string> ReadNewFeedAsync(string url)
+        public async Task<List<string>> ReadUrlsAsync(List<string> urls)
         {
-            string feedUrl = GetFeedUrl(url);
-            var feed = await FeedReader.ReadAsync(feedUrl);
-            var result = feed.Items.First();
-            return result.Link;
+            var posts = new List<string>();
+            try
+            {
+                foreach (var url in urls)
+                {
+                    var feed = await FeedReader.ReadAsync(url);
+                    var result = feed.Items.First();
+                    posts.Add(result.Title);
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            return posts;
         }
 
-        private string GetFeedUrl(string url)
+        public string GetFeedUrl(string url)
         {
             var feedUrls = FeedReader.GetFeedUrlsFromUrl(url);
             var numberUrls = feedUrls.Count();
             string resultFeed;
-
-            try
-            {
-                resultFeed = feedUrls.First().Url;
-            }
-            catch (Exception)
-            {
-                throw new Exception("Brak odpowiedniego Url");
-            }
-              
+            resultFeed = feedUrls.FirstOrDefault().Url;     
             return resultFeed;
         }
     }

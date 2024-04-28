@@ -8,5 +8,6 @@ namespace SaaS_App.Domain.Entities
         public DateTimeOffset CreateDate { get; set; }
         public bool IsActive { get; set; } = false;
         public AccountUser AccountUser { get; set; } = new AccountUser();
+        public ICollection<UrlFeed> UrlFeeds { get; set; } = new List<UrlFeed>();
     }
 }

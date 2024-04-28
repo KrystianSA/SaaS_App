@@ -9,6 +9,9 @@ namespace SaaS_App.Application.Interfaces
         DbSet<Account> Accounts { get; set; }
         DbSet<AccountUser> AccountUser { get; set; }
         DbSet<Tokens> Tokens { get; set; }
+        DbSet<UrlFeed> UrlFeeds { get; set; }
+        DbSet<Post> Posts { get; set; }
+
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

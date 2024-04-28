@@ -5,11 +5,9 @@ using SaaS_App.Application.Logic.Abstractions;
 using SaaS_App.WebApi.Middlewares;
 using SaaS_App.WebApi.Application;
 using SaaS_App.WebApi.Application.Auth;
-using Microsoft.AspNetCore.Mvc;
 using System.Text.Json.Serialization;
 using SaaS_App.Infrastructure.EmailService;
 using Microsoft.AspNetCore.RateLimiting;
-using System.Threading.RateLimiting;
 
 namespace SaaS_App.WebApi
 {
@@ -49,10 +47,10 @@ namespace SaaS_App.WebApi
 
             builder.Services.AddControllersWithViews(options =>
             {
-                if (!builder.Environment.IsDevelopment())
-                {
-                    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
-                }
+                //if (!builder.Environment.IsDevelopment())
+                //{
+                //    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+                //}
             }).AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
